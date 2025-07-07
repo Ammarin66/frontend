@@ -1,5 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import Navigation from "./components/Navigation";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import { Prompt } from 'next/font/google';
+
+const prompt = Prompt({
+  subsets: ['thai', 'latin'], 
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,8 +29,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={prompt.className}
       >
+        <Navigation/>
         {children}
       </body>
     </html>
