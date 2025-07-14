@@ -1,13 +1,12 @@
-import Card from "./components/Card"
-import Carousel from "./components/Carousel";
-import Footer from "./components/Footer";
-
-export default function carousel() {
+import Carousel from './components/Carousel';
+import Card from './components/Card';
+export default function Home() {
   return (
-    <div>
-      <Carousel/>
-      <Card/>
-      <Footer/>
-    </div>
-  );
+      <main >
+          <Carousel/> 
+          <Card/>
+      </main>
+      
+
+  )
 }
