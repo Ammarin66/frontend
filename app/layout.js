@@ -14,7 +14,7 @@ const prompt = Prompt({
 
 
 export const metadata = {
-  title: "kkk",
+  title: "WebSite",
   description: "kkkk",
 };
 
