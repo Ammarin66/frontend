@@ -2,11 +2,14 @@
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const [loading, setLoading] = useState(true); // <-- เพิ่ม state loading
+  const router = useRouter();
 
   const getUsers = async () => {
     try {
@@ -20,9 +23,15 @@ export default function Page() {
       }
       const data = await res.json();
       setItems(data);
+      setLoading(false); // <-- โหลดเสร็จแล้ว
     } catch (error) {
       console.error("Error fetching data:", error);
+      setLoading(false);
     }
+    // ถ้า loading ให้ return null หรือข้อความ loading
+ if (loading) {
+  return <div className='text-center'><h1>Loading...</h1></div>; // หรือ return null เพื่อไม่ให้ render อะไร
+}
   };
 
   useEffect(() => {
@@ -30,6 +39,12 @@ export default function Page() {
     const interval = setInterval(getUsers, 1000);
     return () => clearInterval(interval);
   }, []);
+
+    const token = localStorage.getItem('token');
+     if (!token) {
+       router.push('/login');
+       return;
+     }
 
   const openEditModal = (user) => {
     setEditUser(user);
@@ -49,13 +64,13 @@ export default function Page() {
       showCancelButton: true,
       confirmButtonColor: "#dc3545",
       cancelButtonColor: "#6c757d",
-      confirmButtonText: "ใช่, ลบเลย!",
+      confirmButtonText: "ใช่ ลบเลย!",
       cancelButtonText: "ยกเลิก",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const response = await fetch(
-            `http://itdev.cmtc.ac.th:3000/api/users/${id}`,
+            `https://backend-nextjs-virid.vercel.app/api/users/${id}`,
             { method: "DELETE" }
           );
 
@@ -123,7 +138,7 @@ export default function Page() {
             <table className="table table-striped table-hover">
               <thead>
                 <tr>
-                  <th className="text-center">#</th>
+                  <th className="text-center">ID</th>
                   <th>Firstname</th>
                   <th>Fullname</th>
                   <th>Lastname</th>
@@ -182,114 +197,140 @@ export default function Page() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h5>แก้ไขผู้ใช้: {editUser?.firstname}</h5>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-            >
-              <div className="mb-3">
-                <label>Firstname</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editUser.firstname}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, firstname: e.target.value })
-                  }
-                />
-              </div>
+            <div className="modal-header">
+              <h5 className="modal-title">แก้ไขผู้ใช้: {editUser?.fullname}</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={closeModal}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+              >
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-2">
+                      <label className="form-label">คำนำหน้า</label>
+                      <select
+                        className="form-select form-select-sm"
+                        value={editUser.firstname}
+                        onChange={(e) =>
+                          setEditUser({ ...editUser, firstname: e.target.value })
+                        }
+                      >
+                        <option value="นาย">นาย</option>
+                        <option value="นาง">นาง</option>
+                        <option value="นางสาว">นางสาว</option>
+                      </select>
+                    </div>
+                  </div>
 
-              <div className="mb-3">
-                <label>Fullname</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editUser.fullname}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, fullname: e.target.value })
-                  }
-                />
-              </div>
+                  <div className="col-6">
+                    <div className="mb-2">
+                      <label className="form-label">เพศ</label>
+                      <select
+                        className="form-select form-select-sm"
+                        value={editUser.sex}
+                        onChange={(e) =>
+                          setEditUser({ ...editUser, sex: e.target.value })
+                        }
+                      >
+                        <option value="ชาย">ชาย</option>
+                        <option value="หญิง">หญิง</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="mb-3">
-                <label>Lastname</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editUser.lastname}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, lastname: e.target.value })
-                  }
-                />
-              </div>
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-2">
+                      <label className="form-label">ชื่อ</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={editUser.fullname}
+                        onChange={(e) =>
+                          setEditUser({ ...editUser, fullname: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
 
-              <div className="mb-3">
-                <label>Username</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editUser.username}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, username: e.target.value })
-                  }
-                />
-              </div>
+                  <div className="col-6">
+                    <div className="mb-2">
+                      <label className="form-label">นามสกุล</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={editUser.lastname}
+                        onChange={(e) =>
+                          setEditUser({ ...editUser, lastname: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
 
-              <div className="mb-3">
-                <label>Address</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editUser.address}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, address: e.target.value })
-                  }
-                />
-              </div>
+                <div className="mb-2">
+                  <label className="form-label">Username</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    value={editUser.username}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, username: e.target.value })
+                    }
+                  />
+                </div>
 
-              <div className="mb-3">
-                <label>Sex</label>
-                <select
-                  className="form-control"
-                  value={editUser.sex}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, sex: e.target.value })
-                  }
-                >
-                  <option value="">เลือกเพศ</option>
-                  <option value="ชาย">ชาย</option>
-                  <option value="หญิง">หญิง</option>
-                  <option value="อื่นๆ">อื่นๆ</option>
-                </select>
-              </div>
+                <div className="mb-2">
+                  <label className="form-label">ที่อยู่</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    value={editUser.address}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, address: e.target.value })
+                    }
+                  />
+                </div>
 
-              <div className="mb-3">
-                <label>Birthday</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={editUser.birthday}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, birthday: e.target.value })
-                  }
-                />
-              </div>
+                <div className="mb-3">
+                  <label className="form-label">วันเกิด</label>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    value={editUser.birthday}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, birthday: e.target.value })
+                    }
+                  />
+                </div>
 
-              <div className="text-end">
-                <button
-                  type="button"
-                  className="btn btn-secondary me-2"
-                  onClick={closeModal}
-                >
-                  ยกเลิก
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  บันทึก
-                </button>
-              </div>
-            </form>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm me-2"
+                    onClick={closeModal}
+                  >
+                    ยกเลิก
+                  </button>
+                  <button type="submit" className="btn btn-success btn-sm">
+                    บันทึก
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -307,13 +348,93 @@ export default function Page() {
           align-items: center;
           z-index: 1000;
         }
+        
         .modal-content {
           background: white;
-          padding: 1.5rem;
           border-radius: 8px;
-          width: 400px;
-          max-width: 90%;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+          width: 450px;
+          max-width: 90vw;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+          position: relative;
+        }
+        
+        .modal-header {
+          padding: 1rem 1.25rem;
+          border-bottom: 1px solid #dee2e6;
+          display: flex;
+          justify-content: between;
+          align-items: center;
+          background-color: #f8f9fa;
+          border-radius: 8px 8px 0 0;
+        }
+        
+        .modal-title {
+          margin: 0;
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: #495057;
+          flex-grow: 1;
+        }
+        
+        .btn-close {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: #999;
+          cursor: pointer;
+          padding: 0;
+          width: 25px;
+          height: 25px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 3px;
+        }
+        
+        .btn-close:hover {
+          background-color: #f5f5f5;
+          color: #000;
+        }
+        
+        .modal-body {
+          padding: 1.25rem;
+        }
+        
+        .modal-footer {
+          padding: 1rem 1.25rem;
+          border-top: 1px solid #dee2e6;
+          background-color: #f8f9fa;
+          border-radius: 0 0 8px 8px;
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .form-label {
+          font-size: 0.9rem;
+          font-weight: 500;
+          margin-bottom: 0.25rem;
+          color: #495057;
+        }
+        
+        .form-control-sm, .form-select-sm {
+          font-size: 0.875rem;
+          padding: 0.25rem 0.5rem;
+        }
+        
+        .btn-sm {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+        }
+        
+        .mb-2 {
+          margin-bottom: 0.5rem;
+        }
+        
+        .mb-3 {
+          margin-bottom: 1rem;
         }
       `}</style>
     </>
