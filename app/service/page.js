@@ -218,7 +218,7 @@ export default function Service() {
             <div className="d-flex align-items-center mb-3">
               <div className="me-3">
                 <Image 
-                  src="/images/testimonial1.jpg" 
+                  src="/images/xyz.jpg" 
                   alt="ลูกค้า 1" 
                   width={60} 
                   height={60}
@@ -245,7 +245,7 @@ export default function Service() {
             <div className="d-flex align-items-center mb-3">
               <div className="me-3">
                 <Image 
-                  src="/images/testimonial2.jpg" 
+                  src="/images/xz.jpg" 
                   alt="ลูกค้า 2" 
                   width={60} 
                   height={60}
@@ -272,7 +272,7 @@ export default function Service() {
             <div className="d-flex align-items-center mb-3">
               <div className="me-3">
                 <Image 
-                  src="/images/testimonial3.jpg" 
+                  src="/images/abc.jpg" 
                   alt="ลูกค้า 3" 
                   width={60} 
                   height={60}
