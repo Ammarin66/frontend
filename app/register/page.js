@@ -62,7 +62,7 @@ export default function Register() {
     if (!validateForm()) return;
 
     try {
-      const res = await fetch("http://itdev.cmtc.ac.th:3000/api/users", {
+      const res = await fetch("https://backend-nextjs-virid.vercel.app/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -296,7 +296,7 @@ export default function Register() {
                   <label htmlFor="acceptTerms" className="form-check-label">
                     ยอมรับ{" "}
                     <a href="#" className="text-decoration-none ms-1"style={{ color: "#e3bb1c" }}>
-                    ข้อตกลงและเงื่อนไข
+                      ข้อตกลงและเงื่อนไข
                     </a>{" "}
                   </label>
                   {submitted && errors.acceptTerms && (
