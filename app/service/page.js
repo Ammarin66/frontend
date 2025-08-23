@@ -245,7 +245,7 @@ export default function Service() {
             <div className="d-flex align-items-center mb-3">
               <div className="me-3">
                 <Image 
-                  src="/images/xz.jpg" 
+                  src="/images/xzx.jpg" 
                   alt="ลูกค้า 2" 
                   width={60} 
                   height={60}
