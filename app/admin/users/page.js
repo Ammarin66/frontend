@@ -1,14 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 export default function Page() {
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  const [loading, setLoading] = useState(true); // <-- เพิ่ม state loading
+  const [loading, setLoading] = useState(true);
+  const [tokenChecked, setTokenChecked] = useState(false); // ✅ เช็ค token เสร็จหรือยัง
   const router = useRouter();
 
   const getUsers = async () => {
@@ -23,28 +25,44 @@ export default function Page() {
       }
       const data = await res.json();
       setItems(data);
-      setLoading(false); // <-- โหลดเสร็จแล้ว
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
       setLoading(false);
     }
-    // ถ้า loading ให้ return null หรือข้อความ loading
- if (loading) {
-  return <div className='text-center'><h1>Loading...</h1></div>; // หรือ return null เพื่อไม่ให้ render อะไร
-}
   };
 
   useEffect(() => {
-    getUsers();
-    const interval = setInterval(getUsers, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    // ✅ เช็ค token บน browser เท่านั้น
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      setTokenChecked(true); // ✅ ผ่านแล้ว
+      getUsers();
+      const interval = setInterval(getUsers, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [router]);
 
-    const token = localStorage.getItem('token');
-     if (!token) {
-       router.push('/login');
-       return;
-     }
+  if (!tokenChecked) {
+    // ✅ รอเช็ค token ก่อน
+    return (
+      <div className="text-center">
+        <h1>Checking token...</h1>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
 
   const openEditModal = (user) => {
     setEditUser(user);
@@ -154,7 +172,7 @@ export default function Page() {
                 {items.length === 0 ? (
                   <tr>
                     <td colSpan="10" className="text-center">
-                      กำลังโหลดข้อมูล...
+                      ไม่มีข้อมูลผู้ใช้
                     </td>
                   </tr>
                 ) : (
@@ -207,7 +225,7 @@ export default function Page() {
                 ×
               </button>
             </div>
-            
+
             <div className="modal-body">
               <form
                 onSubmit={(e) => {
@@ -348,7 +366,7 @@ export default function Page() {
           align-items: center;
           z-index: 1000;
         }
-        
+
         .modal-content {
           background: white;
           border-radius: 8px;
@@ -359,7 +377,7 @@ export default function Page() {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
           position: relative;
         }
-        
+
         .modal-header {
           padding: 1rem 1.25rem;
           border-bottom: 1px solid #dee2e6;
@@ -369,7 +387,7 @@ export default function Page() {
           background-color: #f8f9fa;
           border-radius: 8px 8px 0 0;
         }
-        
+
         .modal-title {
           margin: 0;
           font-size: 1.1rem;
@@ -377,7 +395,7 @@ export default function Page() {
           color: #495057;
           flex-grow: 1;
         }
-        
+
         .btn-close {
           background: none;
           border: none;
@@ -393,16 +411,16 @@ export default function Page() {
           justify-content: center;
           border-radius: 3px;
         }
-        
+
         .btn-close:hover {
           background-color: #f5f5f5;
           color: #000;
         }
-        
+
         .modal-body {
           padding: 1.25rem;
         }
-        
+
         .modal-footer {
           padding: 1rem 1.25rem;
           border-top: 1px solid #dee2e6;
@@ -411,28 +429,29 @@ export default function Page() {
           display: flex;
           justify-content: flex-end;
         }
-        
+
         .form-label {
           font-size: 0.9rem;
           font-weight: 500;
           margin-bottom: 0.25rem;
           color: #495057;
         }
-        
-        .form-control-sm, .form-select-sm {
+
+        .form-control-sm,
+        .form-select-sm {
           font-size: 0.875rem;
           padding: 0.25rem 0.5rem;
         }
-        
+
         .btn-sm {
           padding: 0.375rem 0.75rem;
           font-size: 0.875rem;
         }
-        
+
         .mb-2 {
           margin-bottom: 0.5rem;
         }
-        
+
         .mb-3 {
           margin-bottom: 1rem;
         }
