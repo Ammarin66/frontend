@@ -1,10 +1,27 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [tokenState, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // อ่าน token จาก localStorage (ตอน mount)
+    const token = localStorage.getItem("token");
+    setToken(token);
+    setIsLoading(false);
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    router.push("/login");
+  };
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
@@ -27,7 +44,10 @@ export default function Navbar() {
           aria-label="Toggle navigation"
           style={{ border: 'none', boxShadow: 'none' }}
         >
-          <span className="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon" style={{ 
+            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28227, 187, 28, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")` 
+          }}>
+          </span>
         </button>
 
         <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
@@ -43,15 +63,15 @@ export default function Navbar() {
               </Link>
             </li>
             <li className="nav-item dropdown mx-2">
-              <a
-                className="nav-link"
+              <Link
                 href="/service"
+                className="nav-link"
                 role="button"
                 aria-expanded="false"
                 style={{ color: '#ffffffff' }}
               >
                 บริการของเรา
-              </a>
+              </Link>
             </li>
             <li className="nav-item mx-2">
               <Link href="/contact" className="nav-link" style={{ color: '#ffffffff' }}>
@@ -60,36 +80,80 @@ export default function Navbar() {
             </li>
           </ul>
 
-          <div className="d-flex gap-2">
-            <Link
-              href="/register"
-              className="btn"
-              style={{
-                borderRadius: '2rem',
-                background: '#e3bb1c',
-                color: '#000000ff',
-                fontSize: '0.9rem',
-                padding: '0.375rem 1.25rem',
-                boxShadow: '0 2px 5px rgba(181, 234, 215, 0.3)',
-              }}
-            >
-              สมัครสมาชิก
-            </Link>
+          <div className="d-flex gap-2 align-items-center">
+            {!isLoading && (
+              <>
+                {tokenState ? (
+                  // แสดงเมื่อมี token (ล็อกอินแล้ว)
+                  <div className="d-flex gap-2 align-items-center">
+                    <Link
+                      href="/admin/users"
+                      className="btn"
+                      style={{
+                        borderRadius: '2rem',
+                        background: '#e3bb1c',
+                        color: '#000000ff',
+                        fontSize: '0.9rem',
+                        padding: '0.375rem 1.25rem',
+                        border: 'none',
+                      }}
+                    >
+                      <i className="bi bi-gear me-1"></i>
+                      แอดมิน
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="btn"
+                      style={{
+                        borderRadius: '2rem',
+                        background: '#dc3545',
+                        color: '#ffffff',
+                        fontSize: '0.9rem',
+                        padding: '0.375rem 1.25rem',
+                        border: 'none',
+                      }}
+                    >
+                      <i className="bi bi-box-arrow-right me-1"></i>
+                      ออกจากระบบ
+                    </button>
+                  </div>
+                ) : (
+                  // แสดงเมื่อไม่มี token (ยังไม่ล็อกอิน)
+                  <>
+                    <Link
+                      href="/register"
+                      className="btn"
+                      style={{
+                        borderRadius: '2rem',
+                        background: '#e3bb1c',
+                        color: '#000000ff',
+                        fontSize: '0.9rem',
+                        padding: '0.375rem 1.25rem',
+                        border: 'none',
+                      }}
+                    >
+                      สมัครสมาชิก
+                    </Link>
 
-            <Link
-              href="/login"
-              className="btn"
-              style={{
-                borderRadius: '2rem',
-                background: '#e3bb1c',
-                color: '#000000ff',
-                fontSize: '0.9rem',
-                padding: '0.375rem 1.25rem',
-                boxShadow: '0 2px 5px rgba(157, 124, 216, 0.3)',
-              }}
-            >
-              เข้าสู่ระบบ
-            </Link>
+                    <Link
+                      href="/login"
+                      className="btn"
+                      style={{
+                        borderRadius: '2rem',
+                        background: '#e3bb1c',
+                        color: '#000000ff',
+                        fontSize: '0.9rem',
+                        padding: '0.375rem 1.25rem',
+                        border: 'none',
+                      }}
+                    >
+                      เข้าสู่ระบบ
+                    </Link>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
